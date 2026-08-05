@@ -1,0 +1,41 @@
+name: Package release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Validate tag and package addon
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${GITHUB_REF_NAME#v}"
+          test -f OpenHeal/OpenHeal.toc
+          test -f OpenHeal/LICENSE
+          grep -q "GNU GENERAL PUBLIC LICENSE" OpenHeal/LICENSE
+          zip -r "OpenHeal-${VERSION}.zip" OpenHeal \
+            -x '*/.DS_Store' '*/Thumbs.db' '*.log' '*.tmp'
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${GITHUB_REF_NAME#v}"
+          gh release create "$GITHUB_REF_NAME" \
+            "OpenHeal-${VERSION}.zip" \
+            --repo "$GITHUB_REPOSITORY" \
+            --generate-notes \
+            --verify-tag \
+            --title "OpenHeal $GITHUB_REF_NAME"
