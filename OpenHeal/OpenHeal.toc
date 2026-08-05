@@ -1,0 +1,80 @@
+## Interface: 120007
+## Title: OpenHeal
+## Notes: Party, raid, pet, and tank frames with secure click-casting.
+## Author: Roburmaster
+## Version: 1.0.0
+## IconTexture: Interface\AddOns\OpenHeal\media\openheal.png
+## X-License: MIT
+## OptionalDeps: LibSharedMedia-3.0
+
+# Account-wide:
+#   OpenHealGlobalDB - profiles (party/raid/pet/style/range/auras)
+#   OpenHealDB       - BindView panel settings
+## SavedVariables: OpenHealGlobalDB, OpenHealDB
+
+# Per-character:
+#   OpenHealCharDB       - active profile + spec bindings
+#   OpenHealBindingsDB   - click-cast / hover-key bindings + bind viewer
+#   OpenHealBindHelpDB   - "help shown once" flags
+#   OpenHealMinimapDB    - minimap button position
+## SavedVariablesPerCharacter: OpenHealCharDB, OpenHealBindingsDB, OpenHealBindHelpDB, OpenHealMinimapDB
+
+# ---------------------------------------------------------------------------
+# Foundation. Nothing below this block may be reordered above it: util and
+# theme are pulled into file-scope locals by almost every module, and
+# aura_filters must exist before the aura modules capture it.
+# ---------------------------------------------------------------------------
+core/util.lua
+UI/theme.lua
+
+db/migration.lua
+db/db.lua
+db/profile.lua
+db/exportimport.lua
+
+auras/aura_filters.lua
+
+db/settings.lua
+
+# ---------------------------------------------------------------------------
+# Frame decorations. Each attaches to a unit button and is optional at runtime.
+# ---------------------------------------------------------------------------
+framefunctions/smoothing.lua
+framefunctions/targetedspells.lua
+mouseoverhealing/spellidmouse.lua
+
+framefunctions/dispel.lua
+auras/debuffs.lua
+auras/friendlybuffs.lua
+framefunctions/incomingheals.lua
+framefunctions/healabsorb.lua
+framefunctions/shieldabsorb.lua
+framefunctions/raidmarker.lua
+framefunctions/aggro.lua
+framefunctions/resurrect.lua
+
+minimap/minimapb.lua
+
+fading/range.lua
+
+blizz/blizzardframes.lua
+
+# ---------------------------------------------------------------------------
+# Frame sets
+# ---------------------------------------------------------------------------
+UI/party.lua
+UI/raid.lua
+UI/pet.lua
+UI/tanks.lua
+UI/readycheck.lua
+
+mouseoverhealing/cast.lua
+core/core.lua
+
+mouseoverhealing/bindview.lua
+
+focus/bindview_core.lua
+focus/bindview_bindings.lua
+focus/bindview_loader.lua
+
+focus/help.lua

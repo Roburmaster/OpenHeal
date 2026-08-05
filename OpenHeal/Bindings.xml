@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Bindings SYSTEM "Bindings.dtd">
+<Bindings>
+    <Binding name="OPENHEAL_BINDVIEW_SELECTREMOVE">
+        if OpenHeal_BindViewKeyButton then
+        OpenHeal_BindViewKeyButton:Click()
+        end
+    </Binding>
+</Bindings>
