@@ -1,0 +1,38 @@
+name: Feature request
+description: Propose a focused improvement to OpenHeal
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: Explain the healer workflow or limitation. Avoid describing only a preferred implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Describe how the feature should behave in and out of combat.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: textarea
+    id: risks
+    attributes:
+      label: WoW API, secure-frame, or compatibility concerns
+      description: Include any known combat-lockdown, taint, performance, or SavedVariables implications.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and pull requests.
+          required: true
+        - label: This request is specific to OpenHeal rather than general game support.
+          required: true

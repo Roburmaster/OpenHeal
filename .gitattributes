@@ -1,0 +1,17 @@
+* text=auto eol=lf
+
+*.lua text eol=lf
+*.xml text eol=lf
+*.toc text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.tga binary
+*.ttf binary
+*.ogg binary
+*.mp3 binary
+*.zip binary

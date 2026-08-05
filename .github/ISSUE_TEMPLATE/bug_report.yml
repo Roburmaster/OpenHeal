@@ -1,0 +1,82 @@
+name: Bug report
+description: Report a reproducible OpenHeal problem
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a problem. Do not include account details or private SavedVariables.
+  - type: input
+    id: version
+    attributes:
+      label: OpenHeal version
+      description: Release version or commit SHA.
+      placeholder: v1.0.0
+    validations:
+      required: true
+  - type: input
+    id: wow-version
+    attributes:
+      label: World of Warcraft version
+      placeholder: Retail client version/build
+    validations:
+      required: true
+  - type: input
+    id: character
+    attributes:
+      label: Class and specialization
+      placeholder: Restoration Druid
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Problem
+      description: Describe what happened and what you expected.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      placeholder: |
+        1. Log in...
+        2. Open...
+        3. Enter combat...
+    validations:
+      required: true
+  - type: textarea
+    id: lua-error
+    attributes:
+      label: First Lua error
+      description: Paste the complete first error and stack trace. Use a code block.
+      render: text
+  - type: dropdown
+    id: combat
+    attributes:
+      label: Combat state
+      options:
+        - Out of combat
+        - In combat
+        - Both
+        - Not applicable
+    validations:
+      required: true
+  - type: textarea
+    id: addons
+    attributes:
+      label: Other addons and isolation test
+      description: State whether the problem remains with other addons disabled.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I tested the latest published OpenHeal release.
+          required: true
+        - label: I removed private or identifying information.
+          required: true
+        - label: This is not a security vulnerability.
+          required: true

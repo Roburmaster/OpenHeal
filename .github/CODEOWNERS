@@ -1,0 +1,7 @@
+# Require the maintainer to review sensitive project files.
+* @Roburmaster
+
+/.github/ @Roburmaster
+/LICENSE @Roburmaster
+/OpenHeal/LICENSE @Roburmaster
+/OpenHeal/OpenHeal.toc @Roburmaster
