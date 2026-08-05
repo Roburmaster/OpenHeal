@@ -1,0 +1,50 @@
+name: Install GPL-3.0 license
+
+on:
+  push:
+    branches:
+      - security-baseline
+    paths:
+      - .github/workflows/license-sync.yml
+
+permissions:
+  contents: write
+
+jobs:
+  install-license:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: security-baseline
+
+      - name: Download and verify official GPL-3.0 text
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location \
+            https://www.gnu.org/licenses/gpl-3.0.txt \
+            --output LICENSE
+
+          test "$(wc -c < LICENSE)" -gt 30000
+          grep -q "GNU GENERAL PUBLIC LICENSE" LICENSE
+          grep -q "Version 3, 29 June 2007" LICENSE
+
+          cp LICENSE OpenHeal/LICENSE
+
+      - name: Commit canonical license files
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if git diff --quiet -- LICENSE OpenHeal/LICENSE; then
+            echo "License files already match GPL-3.0."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add LICENSE OpenHeal/LICENSE
+          git commit -m "license: switch OpenHeal to GPL-3.0-only"
+          git push origin HEAD:security-baseline
