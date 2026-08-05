@@ -13,18 +13,45 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install validators
+        run: sudo apt-get update && sudo apt-get install --yes lua5.1 libxml2-utils
+
+      - name: Validate Lua and XML syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          find OpenHeal -type f -name '*.lua' -print0 |
+            while IFS= read -r -d '' file; do
+              luac5.1 -p "$file"
+            done
+
+          find OpenHeal -type f -name '*.xml' -print0 |
+            while IFS= read -r -d '' file; do
+              xmllint --noout "$file"
+            done
 
       - name: Validate tag and package addon
         shell: bash
         run: |
           set -euo pipefail
+
           VERSION="${GITHUB_REF_NAME#v}"
-          test -f OpenHeal/OpenHeal.toc
-          test -f OpenHeal/LICENSE
-          grep -q "GNU GENERAL PUBLIC LICENSE" OpenHeal/LICENSE
-          zip -r "OpenHeal-${VERSION}.zip" OpenHeal \
+          TOC_VERSION="$(sed -n 's/^## Version:[[:space:]]*//p' OpenHeal/OpenHeal.toc)"
+
+          test -n "$VERSION"
+          test "$VERSION" = "$TOC_VERSION"
+          grep -Fxq '## X-License: GPL-3.0-only' OpenHeal/OpenHeal.toc
+          grep -q 'GNU GENERAL PUBLIC LICENSE' LICENSE
+          grep -q 'Version 3, 29 June 2007' LICENSE
+          cmp --silent LICENSE OpenHeal/LICENSE
+
+          ARCHIVE="OpenHeal-${VERSION}.zip"
+          zip -r "$ARCHIVE" OpenHeal \
             -x '*/.DS_Store' '*/Thumbs.db' '*.log' '*.tmp'
+          sha256sum "$ARCHIVE" > "${ARCHIVE}.sha256"
 
       - name: Create GitHub release
         env:
@@ -32,9 +59,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+
           VERSION="${GITHUB_REF_NAME#v}"
+          ARCHIVE="OpenHeal-${VERSION}.zip"
+
           gh release create "$GITHUB_REF_NAME" \
-            "OpenHeal-${VERSION}.zip" \
+            "$ARCHIVE" \
+            "${ARCHIVE}.sha256" \
             --repo "$GITHUB_REPOSITORY" \
             --generate-notes \
             --verify-tag \
