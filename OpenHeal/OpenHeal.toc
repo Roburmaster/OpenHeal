@@ -4,7 +4,7 @@
 ## Author: Roburmaster
 ## Version: 1.0.0
 ## IconTexture: Interface\AddOns\OpenHeal\media\openheal.png
-## X-License: MIT
+## X-License: GPL-3.0-only
 ## OptionalDeps: LibSharedMedia-3.0
 
 # Account-wide:

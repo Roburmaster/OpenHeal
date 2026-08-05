@@ -6,7 +6,8 @@
   exports, media paths, and SavedVariables to OpenHeal.
 - Added a one-time import for settings from the previous addon when it is
   enabled during the first OpenHeal login.
-- Added the MIT open-source license.
+- Published OpenHeal under the GNU General Public License version 3 only
+  (`GPL-3.0-only`).
 
 ## Version 0.5
 
@@ -93,10 +94,10 @@ of dead code and dead configuration.
 - **Export strings are uncompressed** (~600 bytes for a full profile) because
   LibDeflate is not embedded. They paste fine.
 
-### Note on licensing
+### Licensing
 
-`LICENSE` is GPLv3 and `LICENSE.txt` is "All Rights Reserved". These contradict
-each other. Both were left untouched — pick one.
+The earlier conflicting license files were resolved before the public release.
+The repository and packaged addon are licensed as `GPL-3.0-only`.
 
 ---
 
