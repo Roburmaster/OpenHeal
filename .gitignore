@@ -1,0 +1,31 @@
+# Operating systems and editors
+.DS_Store
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Local development and diagnostics
+*.log
+*.bak
+*.tmp
+*.orig
+*.patch
+*.diff
+
+# Generated release archives
+*.zip
+release/
+dist/
+
+# SavedVariables and user data
+WTF/
+SavedVariables/
+*SavedVariables*.lua
+
+# Lua tooling
+.luarocks/
+luac.out
