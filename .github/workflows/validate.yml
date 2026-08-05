@@ -1,0 +1,80 @@
+name: Validate addon
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Install validators
+        run: sudo apt-get update && sudo apt-get install --yes lua5.1 libxml2-utils
+
+      - name: Validate Lua syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          find OpenHeal -type f -name '*.lua' -print0 |
+            while IFS= read -r -d '' file; do
+              luac5.1 -p "$file"
+            done
+
+      - name: Validate XML syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          find OpenHeal -type f -name '*.xml' -print0 |
+            while IFS= read -r -d '' file; do
+              xmllint --noout "$file"
+            done
+
+      - name: Validate repository and TOC references
+        shell: python
+        run: |
+          from pathlib import Path
+          import sys
+
+          root = Path("OpenHeal")
+          toc = root / "OpenHeal.toc"
+          required = [Path("LICENSE"), root / "LICENSE", toc]
+          errors = []
+
+          for path in required:
+              if not path.is_file():
+                  errors.append(f"Missing required file: {path}")
+
+          for path in Path(".").rglob("*"):
+              if not path.is_file() or ".git" in path.parts:
+                  continue
+              try:
+                  text = path.read_text(encoding="utf-8")
+              except UnicodeDecodeError:
+                  continue
+              if "<<<<<<< " in text or "=======\n" in text or ">>>>>>> " in text:
+                  errors.append(f"Possible merge marker in {path}")
+
+          if toc.is_file():
+              for raw_line in toc.read_text(encoding="utf-8-sig").splitlines():
+                  line = raw_line.strip()
+                  if not line or line.startswith("##") or line.startswith("#"):
+                      continue
+                  referenced = root / Path(line.replace("\\", "/"))
+                  if not referenced.is_file():
+                      errors.append(f"TOC references missing file: {line}")
+
+          if errors:
+              print("\n".join(errors), file=sys.stderr)
+              raise SystemExit(1)
+
+          print("Repository structure and TOC references are valid.")
