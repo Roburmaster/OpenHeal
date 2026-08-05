@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install validators
         run: sudo apt-get update && sudo apt-get install --yes lua5.1 libxml2-utils
@@ -39,35 +39,80 @@ jobs:
               xmllint --noout "$file"
             done
 
-      - name: Validate repository and TOC references
+      - name: Validate repository, licensing, and TOC references
         shell: python
         run: |
           from pathlib import Path
+          import re
           import sys
 
           root = Path("OpenHeal")
           toc = root / "OpenHeal.toc"
-          required = [Path("LICENSE"), root / "LICENSE", toc]
+          root_license = Path("LICENSE")
+          addon_license = root / "LICENSE"
+          required = [root_license, addon_license, toc]
           errors = []
 
           for path in required:
               if not path.is_file():
                   errors.append(f"Missing required file: {path}")
 
+          lua_files = list(root.rglob("*.lua"))
+          if not lua_files:
+              errors.append("No Lua files found in OpenHeal")
+
           for path in Path(".").rglob("*"):
               if not path.is_file() or ".git" in path.parts:
                   continue
               try:
-                  text = path.read_text(encoding="utf-8")
+                  lines = path.read_text(encoding="utf-8").splitlines()
               except UnicodeDecodeError:
                   continue
-              if "<<<<<<< " in text or "=======\n" in text or ">>>>>>> " in text:
-                  errors.append(f"Possible merge marker in {path}")
+
+              for line_number, line in enumerate(lines, start=1):
+                  if (
+                      line.startswith("<<<<<<< ")
+                      or line == "======="
+                      or line.startswith(">>>>>>> ")
+                  ):
+                      errors.append(
+                          f"Merge conflict marker in {path}:{line_number}"
+                      )
+
+          if root_license.is_file() and addon_license.is_file():
+              if root_license.read_bytes() != addon_license.read_bytes():
+                  errors.append("Root and packaged LICENSE files differ")
+
+              license_text = root_license.read_text(encoding="utf-8")
+              if "GNU GENERAL PUBLIC LICENSE" not in license_text:
+                  errors.append("LICENSE is not the expected GNU GPL text")
+              if "Version 3, 29 June 2007" not in license_text:
+                  errors.append("LICENSE is not GPL version 3")
 
           if toc.is_file():
-              for raw_line in toc.read_text(encoding="utf-8-sig").splitlines():
+              toc_text = toc.read_text(encoding="utf-8-sig")
+              toc_lines = toc_text.splitlines()
+
+              if "## X-License: GPL-3.0-only" not in toc_lines:
+                  errors.append(
+                      "OpenHeal.toc must declare X-License: GPL-3.0-only"
+                  )
+
+              version_lines = [
+                  line.removeprefix("## Version:").strip()
+                  for line in toc_lines
+                  if line.startswith("## Version:")
+              ]
+              if len(version_lines) != 1:
+                  errors.append("OpenHeal.toc must contain exactly one Version field")
+              elif not re.fullmatch(r"\d+\.\d+\.\d+", version_lines[0]):
+                  errors.append(
+                      "OpenHeal.toc Version must use numeric major.minor.patch"
+                  )
+
+              for raw_line in toc_lines:
                   line = raw_line.strip()
-                  if not line or line.startswith("##") or line.startswith("#"):
+                  if not line or line.startswith("#"):
                       continue
                   referenced = root / Path(line.replace("\\", "/"))
                   if not referenced.is_file():
@@ -77,4 +122,4 @@ jobs:
               print("\n".join(errors), file=sys.stderr)
               raise SystemExit(1)
 
-          print("Repository structure and TOC references are valid.")
+          print("OpenHeal repository validation passed.")
